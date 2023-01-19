@@ -35,6 +35,8 @@ func GetBookById(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
+	updateBook := &models.Book{}
+	utils.ParseBody(r, updateBook)
 	vars := mux.Vars(r)
 	bookId := vars["bookId"]
 	var id int64
@@ -43,7 +45,12 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error in reading book id parameter")
 	}
 	book, db := models.GetBookById(id)
-	db.Update("ID=?").Update(book)
+	book.Copy(*updateBook)
+	db.Save(&book)
+	res, _ := json.Marshal(book)
+	w.Header().Set("Content-Type", "pkglication/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
 }
 func CreateBook(w http.ResponseWriter, r *http.Request) {
 	book := &models.Book{}
@@ -61,5 +68,8 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Error in reading book id parameter")
 	}
-	models.DeleteBook(id)
+	book := models.DeleteBook(id)
+	res, _ := json.Marshal(book)
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
 }

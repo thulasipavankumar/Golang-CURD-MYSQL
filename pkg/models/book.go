@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	"github.com/thulasipavankumar/golang-curd-mysql/pkg/config"
 )
@@ -18,12 +20,24 @@ func init() {
 	config.Connect()
 	db = config.GetDB()
 	db.AutoMigrate(&Book{})
+	fmt.Println("DataBase initialized")
 }
 
 func (b *Book) CreateBook() *Book {
 	db.NewRecord(b)
 	db.Create(&b)
 	return b
+}
+func (origin *Book) Copy(des Book) {
+	if origin.Name != "" {
+		origin.Name = des.Name
+	}
+	if origin.Author != "" {
+		origin.Author = des.Author
+	}
+	if origin.Publication != "" {
+		origin.Publication = des.Publication
+	}
 }
 func GetAllBooks() []Book {
 	var Books []Book
